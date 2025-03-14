@@ -125,18 +125,26 @@ shadowJar {
         attributes["Main-Class"] = "org.example.App"
     }
 }
-
+def launch4jOutputDir = "${buildDir}/launch4j"
+def copiedJavafxSdkPath = "${launch4jOutputDir}/javafx-sdk"
 
 launch4j {
     mainClassName = 'org.example.App'
     outfile = 'forrealdatingapp.exe'
     // jarTask instead of jar (points to your JAR-producing task)
     jarTask = project.tasks.shadowJar
-    jvmOptions = ["-Xms256m", "-Xmx1024m", "--module-path", javafxSdkPath + "/javafx-sdk-23.0.2/lib", "--add-modules", "javafx.base,javafx.controls,javafx.graphics,javafx.swing"]
+    jvmOptions = ["-Xms256m", "-Xmx1024m", "--module-path",  "javafx-sdk/javafx-sdk-23.0.2/lib", "--add-modules", "javafx.base,javafx.controls,javafx.graphics,javafx.swing"]
     bundledJrePath = 'jre'
     // Only needed if using custom dependencies
     dontWrapJar = true 
+    outputDir = launch4jOutputDir
 }
+task copyJavafxSdk(type: Copy) {
+    from "${rootProject.projectDir}/javafx-sdk"
+    into copiedJavafxSdkPath
+    
+}
+
 tasks.register('zipLaunch4j', Zip) {
     dependsOn 'createExe'
     archiveFileName = "forrealdatingapp.zip" // Custom name with version

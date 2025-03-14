@@ -42,9 +42,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh './gradlew createExe' // Use 'sh' for Linux/macOS
+                        sh './gradlew createExe copyJavafxSdk' // Use 'sh' for Linux/macOS
                     } else {
-                        bat 'gradlew.bat createExe' // Use 'bat' for Windows
+                        bat 'gradlew.bat createExe copyJavafxSdk' // Use 'bat' for Windows
                     }
                 }
             }
