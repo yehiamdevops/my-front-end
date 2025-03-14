@@ -67,26 +67,32 @@ pipeline {
         stage('Publish GitHub Release') {
             steps {
                 script {
-                    def zipFile = 'app/build/distributions/forrealdatingapp.zip'
-                    def tagName = "v${env.BUILD_NUMBER}" // Use build number for versioning
-                    def releaseName = "Release ${tagName}"
-                    def releaseBody = "This is release ${tagName} built by Jenkins."
+                    // Create release notes file
+                    writeFile file: 'release-notes.md', text: "Release ${env.BUILD_NUMBER} - Built by Jenkins"
 
-                    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-                        githubRelease(
-                            credentialsId: 'github-token',
-                            gitHubServer: 'https://api.github.com',
-                            repositoryOwner: 'yehiamdevops',
-                            repositoryName: 'my-front-end',
-                            tagName: tagName,
-                            releaseName: releaseName,
-                            releaseBody: releaseBody,
-                            assets: zipFile
-                        )
-                    }
+                    // Create GitHub release
+                    createGitHubRelease(
+                        credentialId: 'github-token', // Jenkins credential ID for GitHub PAT
+                        repository: 'yehiamdevops/my-front-end', // Format: owner/repo
+                        tag: "v${env.BUILD_NUMBER}", // Release tag
+                        commitish: 'main', // Branch/commit reference (required)
+                        bodyFile: 'release-notes.md', // Release description file
+                        draft: false // Publish immediately
+                    )
+
+                    // Upload ZIP asset
+                    uploadGithubReleaseAsset(
+                        credentialId: 'github-token',
+                        repository: 'yehiamdevops/my-front-end',
+                        tagName: "v${env.BUILD_NUMBER}",
+                        uploadAssets: [
+                            [filePath: 'app/build/distributions/forrealdatingapp.zip']
+                        ]
+                    )
                 }
             }
         }
+
     }
 
     post {
