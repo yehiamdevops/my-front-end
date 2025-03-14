@@ -15,7 +15,13 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm // Checkout code from the configured SCM (e.g., Git)
+                 script {
+                    if (isUnix()) {
+                        sh 'chmod +x gradlew' // Make gradlew executable on Unix-like systems
+                    }
+                }
             }
+            
         }
 
         // Stage 2: Build the application using Gradle
@@ -25,7 +31,7 @@ pipeline {
                     if (isUnix()) {
                         sh './gradlew clean build' // Use 'sh' for Linux/macOS
                     } else {
-                        bat 'gradlew clean build' // Use 'bat' for Windows
+                        bat 'gradlew.bat clean build' // Use 'bat' for Windows
                     }
                 }
             }
@@ -38,7 +44,7 @@ pipeline {
                     if (isUnix()) {
                         sh './gradlew createExe' // Use 'sh' for Linux/macOS
                     } else {
-                        bat 'gradlew createExe' // Use 'bat' for Windows
+                        bat 'gradlew.bat createExe' // Use 'bat' for Windows
                     }
                 }
             }
@@ -51,7 +57,7 @@ pipeline {
                     if (isUnix()) {
                         sh './gradlew zipLaunch4j' // Use 'sh' for Linux/macOS
                     } else {
-                        bat 'gradlew zipLaunch4j' // Use 'bat' for Windows
+                        bat 'gradlew.bat zipLaunch4j' // Use 'bat' for Windows
                     }
                 }
             }
