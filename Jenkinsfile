@@ -21,20 +21,44 @@ pipeline {
         // Stage 2: Build the application using Gradle
         stage('Build') {
             steps {
-                bat 'gradlew clean build' // Use 'bat' for Windows
+                script {
+                    if (isUnix()) {
+                        sh './gradlew clean build' // Use 'sh' for Linux/macOS
+                    } else {
+                        bat 'gradlew clean build' // Use 'bat' for Windows
+                    }
+                }
             }
         }
+
+        // Stage 3: Create EXE file
         stage('Create EXE') {
             steps {
-                bat 'gradlew createExe' // Use Launch4j or jpackage to create EXE
+                script {
+                    if (isUnix()) {
+                        sh './gradlew createExe' // Use 'sh' for Linux/macOS
+                    } else {
+                        bat 'gradlew createExe' // Use 'bat' for Windows
+                    }
+                }
             }
         }
+
+        // Stage 4: Create ZIP file
         stage('Create Zip') {
             steps {
-                bat 'gradlew zipLaunch4j' // create zip in "${buildDir}/distributions"
+                script {
+                    if (isUnix()) {
+                        sh './gradlew zipLaunch4j' // Use 'sh' for Linux/macOS
+                    } else {
+                        bat 'gradlew zipLaunch4j' // Use 'bat' for Windows
+                    }
+                }
             }
         }
-         stage('Publish GitHub Release') {
+
+        // Stage 5: Publish GitHub Release
+        stage('Publish GitHub Release') {
             steps {
                 script {
                     // Use the GitHub Release Plugin or a script to upload the ZIP file
@@ -52,19 +76,16 @@ pipeline {
             }
         }
     }
-        
-
-     
-    }
 
     post {
         // Actions to perform after the pipeline completes
         success {
-            echo 'Pipeline succeeded!'
+            echo 'Pipeline succeeded! 🎉'
             // Notify the team (e.g., via email, Slack, etc.)
         }
         failure {
-            echo 'Pipeline failed!'
+            echo 'Pipeline failed! 😢'
             // Notify the team (e.g., via email, Slack, etc.)
         }
     }
+}
