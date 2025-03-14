@@ -67,8 +67,8 @@ pipeline {
         stage('Publish GitHub Release') {
             steps {
                 script {
-                    // Use the GitHub Release Plugin or a script to upload the ZIP file
-                    def releaseId = githubRelease(
+                    // Use the GitHub Release Plugin to upload the ZIP file
+                    githubRelease(
                         repoOwner: 'yehiamdevops', // Your GitHub username or organization
                         repository: 'my-front-end', // Your repository name
                         tagName: 'v1.0.0', // Release tag (e.g., v1.0.0)
@@ -77,7 +77,7 @@ pipeline {
                         assets: 'app/build/distributions/*.zip', // Path to the ZIP file
                         credentialsId: 'github-token' // Jenkins credentials for GitHub token
                     )
-                    echo "GitHub release created with ID: ${releaseId}"
+                    echo "GitHub release published successfully!"
                 }
             }
         }
