@@ -65,46 +65,48 @@ pipeline {
 
         // Stage 5: Publish GitHub Release
         stage('Publish GitHub Release') {
-    steps {
-        script {
-            // Define variables
-            def zipFile = 'app/build/distributions/forrealdatingapp.zip' // Path to the ZIP file
-            def tagName = 'v1.0.0' // Release tag
-            def releaseName = 'Release v1.0.0' // Release name
-            def releaseBody = 'This is the first release!' // Release description
+            steps {
+                script {
+                    // Define variables
+                    def zipFile = 'app/build/distributions/forrealdatingapp.zip' // Path to the ZIP file
+                    def tagName = 'v1.0.0' // Release tag
+                    def releaseName = 'Release v1.0.0' // Release name
+                    def releaseBody = 'This is the first release!' // Release description
 
-            // Step 1: Create a GitHub release
-            def releaseResponse = sh(script: """
-                curl -X POST \
-                -H "Authorization: token ${GITHUB_TOKEN}" \
-                -H "Content-Type: application/json" \
-                -d '{
-                    "tag_name": "${tagName}",
-                    "name": "${releaseName}",
-                    "body": "${releaseBody}",
-                    "draft": false,
-                    "prerelease": false
-                }' \
-                https://api.github.com/repos/yehiamdevops/my-front-end/releases
-            """, returnStdout: true)
+                    // Step 1: Create a GitHub release
+                    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                        def releaseResponse = sh(script: """
+                            curl -X POST \
+                            -H "Authorization: token ${GITHUB_TOKEN}" \
+                            -H "Content-Type: application/json" \
+                            -d '{
+                                "tag_name": "${tagName}",
+                                "name": "${releaseName}",
+                                "body": "${releaseBody}",
+                                "draft": false,
+                                "prerelease": false
+                            }' \
+                            https://api.github.com/repos/yehiamdevops/my-front-end/releases
+                        """, returnStdout: true)
 
-            // Step 2: Parse the release ID from the response
-            def releaseId = (new groovy.json.JsonSlurper().parseText(releaseResponse)).id
+                        // Step 2: Parse the release ID from the response
+                        def releaseId = (new groovy.json.JsonSlurper().parseText(releaseResponse)).id
 
-            // Step 3: Upload the ZIP file to the release
-            sh """
-                curl -X POST \
-                -H "Authorization: token ${GITHUB_TOKEN}" \
-                -H "Content-Type: application/zip" \
-                --data-binary @${zipFile} \
-                https://uploads.github.com/repos/yehiamdevops/my-front-end/releases/${releaseId}/assets?name=${zipFile}
-            """
+                        // Step 3: Upload the ZIP file to the release
+                        sh """
+                            curl -X POST \
+                            -H "Authorization: token ${GITHUB_TOKEN}" \
+                            -H "Content-Type: application/zip" \
+                            --data-binary @${zipFile} \
+                            https://uploads.github.com/repos/yehiamdevops/my-front-end/releases/${releaseId}/assets?name=${zipFile}
+                        """
 
-            // Print the release ID for debugging
-            echo "GitHub release created with ID: ${releaseId}"
+                        // Print the release ID for debugging
+                        echo "GitHub release created with ID: ${releaseId}"
+                    }
+                }
+            }
         }
-    }
-}
     }
 
     post {
