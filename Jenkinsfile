@@ -67,42 +67,22 @@ pipeline {
         stage('Publish GitHub Release') {
             steps {
                 script {
-                    // Define variables
-                    def zipFile = 'app/build/distributions/forrealdatingapp.zip' // Path to the ZIP file
-                    def tagName = 'v1.0.0' // Release tag
-                    def releaseName = 'Release v1.0.0' // Release name
-                    def releaseBody = 'This is the first release!' // Release description
+                    def zipFile = 'app/build/distributions/forrealdatingapp.zip'
+                    def tagName = "v${env.BUILD_NUMBER}" // Use build number for versioning
+                    def releaseName = "Release ${tagName}"
+                    def releaseBody = "This is release ${tagName} built by Jenkins."
 
-                    // Step 1: Create a GitHub release
                     withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-                        def releaseResponse = sh(script: """
-                            curl -X POST \
-                            -H "Authorization: token ${GITHUB_TOKEN}" \
-                            -H "Content-Type: application/json" \
-                            -d '{
-                                "tag_name": "${tagName}",
-                                "name": "${releaseName}",
-                                "body": "${releaseBody}",
-                                "draft": false,
-                                "prerelease": false
-                            }' \
-                            https://api.github.com/repos/yehiamdevops/my-front-end/releases
-                        """, returnStdout: true)
-
-                        // Step 2: Parse the release ID from the response
-                        def releaseId = (new groovy.json.JsonSlurper().parseText(releaseResponse)).id
-
-                        // Step 3: Upload the ZIP file to the release
-                        sh """
-                            curl -X POST \
-                            -H "Authorization: token ${GITHUB_TOKEN}" \
-                            -H "Content-Type: application/zip" \
-                            --data-binary @${zipFile} \
-                            https://uploads.github.com/repos/yehiamdevops/my-front-end/releases/${releaseId}/assets?name=${zipFile}
-                        """
-
-                        // Print the release ID for debugging
-                        echo "GitHub release created with ID: ${releaseId}"
+                        githubRelease(
+                            credentialsId: 'github-token',
+                            gitHubServer: 'https://api.github.com',
+                            repositoryOwner: 'yehiamdevops',
+                            repositoryName: 'my-front-end',
+                            tagName: tagName,
+                            releaseName: releaseName,
+                            releaseBody: releaseBody,
+                            assets: zipFile
+                        )
                     }
                 }
             }
