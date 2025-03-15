@@ -1,5 +1,7 @@
 pipeline {
-    agent any // Run on any available agent
+    agent {
+        node 'HostAgent'
+    } 
 
     environment {
         // Define environment variables (can be loaded from Jenkins credentials)
@@ -12,6 +14,22 @@ pipeline {
 
     stages {
         // Stage 1: Checkout code from SCM (Git)
+        stage('Add Env Vars'){
+            steps{
+             script {
+                if (isWindows()) {
+                        bat """
+                        setx EXPRESS_HOST "${env.EXPRESS_HOST}"
+                        setx SOCKET_HOST "${env.SOCKET_HOST}"
+                        setx SOCKET_PORT "${env.SOCKET_PORT}"
+                        setx CLOUDINARY_URL "${env.CLOUDINARY_URL}"
+                        setx GITHUB_TOKEN "${env.GITHUB_TOKEN}"
+                        """
+                    }
+                }
+            }
+
+        }
         stage('Checkout') {
             steps {
                 checkout scm // Checkout code from the configured SCM (e.g., Git)
