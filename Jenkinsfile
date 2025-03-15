@@ -80,51 +80,46 @@ pipeline {
                 }
             }
         }
-         stage('Test Location') {
-            steps {
-                script {
-                    def zipFilePath = "${WORKSPACE}\\app\\build\\distributions\\forrealdatingapp.zip"
-                    if (isUnix()) {
-                        zipFilePath = "${WORKSPACE}/app/build/distributions/forrealdatingapp.zip"
-                    }
 
-                    // Check if the file exists
-                    if (fileExists(zipFilePath)) {
-                        echo "✅ File found at: ${zipFilePath}"
-                    } else {
-                        error "❌ File not found at: ${zipFilePath}"
-                    }
-                }
-            }
-        }
         
 
         // Stage 5: Publish GitHub Release
         stage('Publish GitHub Release') {
             steps {
                 script {
+                    // Reuse the same ZIP file path
+                    def zipFilePath = isUnix() ?
+                        "${WORKSPACE}/app/build/distributions/forrealdatingapp.zip" :
+                        "${WORKSPACE}\\app\\build\\distributions\\forrealdatingapp.zip"
+
+                    // Log the file path being used
+                    echo "Attempting to upload file: ${zipFilePath}"
+
+                    // Verify the file exists before uploading
+                    if (!fileExists(zipFilePath)) {
+                        error "❌ File not found at: ${zipFilePath}"
+                    }
+
                     // Create release notes file
                     writeFile file: 'release-notes.md', text: "Release ${env.BUILD_NUMBER} - Built by Jenkins"
 
                     // Create GitHub release
                     createGitHubRelease(
-                        credentialId: 'github-token', // Jenkins credential ID for GitHub PAT
-                        repository: 'yehiamdevops/my-front-end', // Format: owner/repo
-                        tag: "v${env.BUILD_NUMBER}", // Release tag
-                        commitish: 'main', // Branch/commit reference (required)
-                        bodyFile: 'release-notes.md', // Release description file
-                        draft: false // Publish immediately
+                        credentialId: 'github-token',
+                        repository: 'yehiamdevops/my-front-end',
+                        tag: "v${env.BUILD_NUMBER}",
+                        commitish: 'main',
+                        bodyFile: 'release-notes.md',
+                        draft: false
                     )
-                    
 
-                
                     // Upload ZIP asset
                     uploadGithubReleaseAsset(
                         credentialId: 'github-token',
                         repository: 'yehiamdevops/my-front-end',
                         tagName: "v${env.BUILD_NUMBER}",
                         uploadAssets: [
-                            [filePath: "${WORKSPACE}\\app\\build\\distributions\\forrealdatingapp.zip"]
+                            [filePath: zipFilePath]
                         ]
                     )
                 }
