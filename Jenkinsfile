@@ -100,8 +100,9 @@ pipeline {
         stage('Publish GitHub Release') {
             steps {
                 script {
-                    // Reuse the same ZIP file path
-                    def zipFilePath = "${WORKSPACE}/app/build/distributions/forrealdatingapp.zip" 
+                    // Reuse the same ZIP file path 
+                    
+                    def zipFilePath = "${WORKSPACE}/app/build/distributions/forrealdatingapp.zip".replace("\\", "/") 
                         
 
                     // Log the file path being used
