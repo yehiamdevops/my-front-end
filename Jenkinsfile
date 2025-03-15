@@ -17,11 +17,7 @@ pipeline {
             agent any
             steps {
                 checkout scm // Checkout code from the configured SCM (e.g., Git)
-                 script {
-                    if (isUnix()) {
-                        sh 'chmod +x gradlew' // Make gradlew executable on Unix-like systems
-                    }
-                }
+             
             }
             
         }
@@ -50,6 +46,7 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
+                        sh 'chmod +x gradlew'
                         sh './gradlew clean build' // Use 'sh' for Linux/macOS
                     } else {
                         bat 'gradlew.bat clean build' // Use 'bat' for Windows
