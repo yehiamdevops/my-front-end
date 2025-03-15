@@ -80,6 +80,19 @@ pipeline {
                 }
             }
         }
+        stage('List Workspace Contents') {
+            steps {
+                script {
+                    def workspacePath = "E:\\jenkins-agent\\workspace\\my-front-end"
+                    if (isUnix()) {
+                        sh "ls -l ${workspacePath}"
+                    } else {
+                        bat "dir ${workspacePath}"
+                    }
+                }
+            }
+        }
+    }
 
         
 
