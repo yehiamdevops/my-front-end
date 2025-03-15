@@ -61,6 +61,7 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
+                        sh 'chmod +x gradlew'
                         sh './gradlew createExe copyJavafxSdk' // Use 'sh' for Linux/macOS
                     } else {
                         bat 'gradlew.bat createExe copyJavafxSdk' // Use 'bat' for Windows
