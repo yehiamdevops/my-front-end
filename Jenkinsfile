@@ -23,7 +23,7 @@ pipeline {
                         setx SOCKET_HOST "${env.SOCKET_HOST}"
                         setx SOCKET_PORT "${env.SOCKET_PORT}"
                         setx CLOUDINARY_URL "${env.CLOUDINARY_URL}"
-                        setx GITHUB_TOKEN "${env.GITHUB_TOKEN}"
+                        
                         """
                     }
                 }
