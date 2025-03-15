@@ -115,7 +115,7 @@ pipeline {
 
                     // Create release notes file
                     writeFile file: 'release-notes.md', text: "Release ${env.BUILD_NUMBER} - Built by Jenkins"
-
+                    sleep(time: 5, unit: 'SECONDS') // Wait for 5 seconds
                     // Create GitHub release
                     createGitHubRelease(
                         credentialId: 'github-token',
