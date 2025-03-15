@@ -101,9 +101,8 @@ pipeline {
             steps {
                 script {
                     // Reuse the same ZIP file path
-                    def zipFilePath = isUnix() ?
-                        "${WORKSPACE}/app/build/distributions/forrealdatingapp.zip" :
-                        "${WORKSPACE}\\app\\build\\distributions\\forrealdatingapp.zip"
+                    def zipFilePath = "${WORKSPACE}/app/build/distributions/forrealdatingapp.zip" 
+                        
 
                     // Log the file path being used
                     echo "Attempting to upload file: ${zipFilePath}"
