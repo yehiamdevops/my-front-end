@@ -30,7 +30,7 @@ public class UsersRouteRequests {
        String json = objectMapper.writeValueAsString(user);
      * 
      */
-    private static final String HOST = System.getenv("HOST");
+    private static final String HOST = System.getenv("EXPRESS_HOST");
     private static final ObjectMapper om = new ObjectMapper();
     public static final TokenManager tm = new TokenManager();
 
