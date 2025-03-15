@@ -13,8 +13,15 @@ pipeline {
     }
 
     stages {
-        // Stage 1: Checkout code from SCM (Git)
 
+        // Stage 1: Checkout code from SCM (Git)
+        stage('Checkout') {
+            steps {
+                checkout scm // Checkout code from the configured SCM (e.g., Git)
+            
+            }
+                    
+        }
 
         stage('Add Env Vars'){
             steps{
