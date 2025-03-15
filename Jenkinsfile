@@ -83,33 +83,37 @@ pipeline {
 
         // Stage 5: Publish GitHub Release
         stage('Publish GitHub Release') {
-            steps {
-                script {
-                    // Create release notes file
-                    writeFile file: 'release-notes.md', text: "Release ${env.BUILD_NUMBER} - Built by Jenkins"
+    steps {
+        script {
+            // Create release notes file
+            writeFile file: 'release-notes.md', text: "Release ${env.BUILD_NUMBER} - Built by Jenkins"
 
-                    // Create GitHub release
-                    createGitHubRelease(
-                        credentialId: 'github-token', // Jenkins credential ID for GitHub PAT
-                        repository: 'yehiamdevops/my-front-end', // Format: owner/repo
-                        tag: "v${env.BUILD_NUMBER}", // Release tag
-                        commitish: 'main', // Branch/commit reference (required)
-                        bodyFile: 'release-notes.md', // Release description file
-                        draft: false // Publish immediately
-                    )
+            // Create GitHub release
+            createGitHubRelease(
+                credentialId: 'github-token', // Jenkins credential ID for GitHub PAT
+                repository: 'yehiamdevops/my-front-end', // Format: owner/repo
+                tag: "v${env.BUILD_NUMBER}", // Release tag
+                commitish: 'main', // Branch/commit reference (required)
+                bodyFile: 'release-notes.md', // Release description file
+                draft: false // Publish immediately
+            )
 
-                    // Upload ZIP asset
-                    uploadGithubReleaseAsset(
-                        credentialId: 'github-token',
-                        repository: 'yehiamdevops/my-front-end',
-                        tagName: "v${env.BUILD_NUMBER}",
-                        uploadAssets: [
-                            [filePath: "${WORKSPACE}\\app\\build\\distributions\\forrealdatingapp.zip"]
-                        ]
-                    )
-                }
-            }
+            // Check if file exists
+            echo "Checking if the file exists before upload..."
+            bat 'dir /s /b "%WORKSPACE%\\app\\build\\distributions"'
+
+            // Upload ZIP asset
+            uploadGithubReleaseAsset(
+                credentialId: 'github-token',
+                repository: 'yehiamdevops/my-front-end',
+                tagName: "v${env.BUILD_NUMBER}",
+                uploadAssets: [
+                    [filePath: "C:\\Users\\yehiam\\workspace\\my-front-end\\app\\build\\distributions\\forrealdatingapp.zip"]
+                ]
+            )
         }
+    }
+}
 
     }
 
