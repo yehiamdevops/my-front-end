@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        node 'HostAgent'
-    } 
+    agent none
 
     environment {
         // Define environment variables (can be loaded from Jenkins credentials)
@@ -15,10 +13,13 @@ pipeline {
     stages {
         // Stage 1: Checkout code from SCM (Git)
         stage('Add Env Vars'){
+            agent {
+                label 'win' // Run on a Windows agent
+            }
             steps{
              script {
-                if (!isUnix()) {
-                        bat """
+                    
+                    bat """
                         setx EXPRESS_HOST "${env.EXPRESS_HOST}"
                         setx SOCKET_HOST "${env.SOCKET_HOST}"
                         setx SOCKET_PORT "${env.SOCKET_PORT}"
@@ -26,11 +27,12 @@ pipeline {
                         
                         """
                     }
-                }
+                
             }
 
         }
         stage('Checkout') {
+            agent any
             steps {
                 checkout scm // Checkout code from the configured SCM (e.g., Git)
                  script {
@@ -44,6 +46,7 @@ pipeline {
 
         // Stage 2: Build the application using Gradle
         stage('Build') {
+            agent any
             steps {
                 script {
                     if (isUnix()) {
@@ -57,6 +60,7 @@ pipeline {
 
         // Stage 3: Create EXE file
         stage('Create EXE') {
+            agent any
             steps {
                 script {
                     if (isUnix()) {
@@ -70,6 +74,7 @@ pipeline {
 
         // Stage 4: Create ZIP file
         stage('Create Zip') {
+            agent any
             steps {
                 script {
                     if (isUnix()) {
@@ -80,42 +85,29 @@ pipeline {
                 }
             }
         }
-        stage('List Workspace Contents') {
-            steps {
-                script {
-                    def workspacePath = "E:\\jenkins-agent\\workspace\\my-front-end"
-                    if (isUnix()) {
-                        sh "ls -l ${workspacePath}"
-                    } else {
-                        bat "dir ${workspacePath}"
-                    }
-                }
-            }
-        }
+
     
 
         
 
         // Stage 5: Publish GitHub Release
         stage('Publish GitHub Release') {
+            agent {
+                label 'unix' // Run on a Windows agent
+            }
             steps {
                 script {
                     // Reuse the same ZIP file path 
                     
-                    def zipFilePath = "${WORKSPACE}/app/build/distributions/forrealdatingapp.zip".replace("\\", "/") 
+                    def zipFilePath = "${WORKSPACE}/app/build/distributions/forrealdatingapp.zip"
                         
 
                     // Log the file path being used
                     echo "Attempting to upload file: ${zipFilePath}"
 
-                    // Verify the file exists before uploading
-                    if (!fileExists(zipFilePath)) {
-                        error "❌ File not found at: ${zipFilePath}"
-                    }
 
                     // Create release notes file
                     writeFile file: 'release-notes.md', text: "Release ${env.BUILD_NUMBER} - Built by Jenkins"
-                    sleep(time: 5, unit: 'SECONDS') // Wait for 5 seconds
                     // Create GitHub release
                     createGitHubRelease(
                         credentialId: 'github-token',
