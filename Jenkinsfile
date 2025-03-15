@@ -12,6 +12,19 @@ pipeline {
 
     stages {
         // Stage 1: Checkout code from SCM (Git)
+
+        stage('Checkout') {
+            agent any
+            steps {
+                checkout scm // Checkout code from the configured SCM (e.g., Git)
+                 script {
+                    if (isUnix()) {
+                        sh 'chmod +x gradlew' // Make gradlew executable on Unix-like systems
+                    }
+                }
+            }
+            
+        }
         stage('Add Env Vars'){
             agent {
                 label 'win' // Run on a Windows agent
@@ -31,20 +44,7 @@ pipeline {
             }
 
         }
-        stage('Checkout') {
-            agent any
-            steps {
-                checkout scm // Checkout code from the configured SCM (e.g., Git)
-                 script {
-                    if (isUnix()) {
-                        sh 'chmod +x gradlew' // Make gradlew executable on Unix-like systems
-                    }
-                }
-            }
-            
-        }
-
-        // Stage 2: Build the application using Gradle
+        //  Build the application using Gradle
         stage('Build') {
             agent any
             steps {
