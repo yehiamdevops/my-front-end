@@ -76,6 +76,7 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
+                        sh 'chmod +x gradlew'
                         sh './gradlew zipLaunch4j' // Use 'sh' for Linux/macOS
                     } else {
                         bat 'gradlew.bat zipLaunch4j' // Use 'bat' for Windows
