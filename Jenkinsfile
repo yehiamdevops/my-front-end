@@ -17,7 +17,7 @@ pipeline {
         stage('Add Env Vars'){
             steps{
              script {
-                if (isWindows()) {
+                if (!isUnix()) {
                         bat """
                         setx EXPRESS_HOST "${env.EXPRESS_HOST}"
                         setx SOCKET_HOST "${env.SOCKET_HOST}"
