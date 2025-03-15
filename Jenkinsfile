@@ -80,6 +80,23 @@ pipeline {
                 }
             }
         }
+                // Stage 6: Test Location of ZIP File
+        stage('Test Location') {
+            steps {
+                script {
+                    def zipFilePath = "${WORKSPACE}\\app\\build\\distributions\\forrealdatingapp.zip"
+                    if (isUnix()) {
+                        zipFilePath = "${WORKSPACE}/app/build/distributions/forrealdatingapp.zip"
+                    }
+
+                    // Check if the file exists
+                    if (fileExists(zipFilePath)) {
+                        echo "✅ File found at: ${zipFilePath}"
+                    } else {
+                        error "❌ File not found at: ${zipFilePath}"
+                    }
+                }
+            }
 
         // Stage 5: Publish GitHub Release
         stage('Publish GitHub Release') {
